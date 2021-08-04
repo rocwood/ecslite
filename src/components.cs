@@ -181,9 +181,12 @@ namespace Leopotam.EcsLite {
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
                 _world.RaiseEntityChangeEvent (entity);
 #endif
+				/*
+				// disable feature: delete entity without components
                 if (entityData.ComponentsCount == 0) {
                     _world.DelEntity (entity);
                 }
+				*/
             }
         }
 

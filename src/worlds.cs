@@ -18,6 +18,7 @@ namespace Leopotam.EcsLite {
     [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
 #endif
     public sealed class EcsWorld {
+		readonly string _name;
         internal EntityData[] Entities;
         int _entitiesCount;
         int[] _recycledEntities;
@@ -71,7 +72,8 @@ namespace Leopotam.EcsLite {
         }
 #endif
 
-        public EcsWorld (in Config cfg = default) {
+        public EcsWorld (string name, in Config cfg = default) {
+			_name = name;
             // entities.
             var capacity = cfg.Entities > 0 ? cfg.Entities : Config.EntitiesDefault;
             Entities = new EntityData[capacity];
@@ -121,7 +123,12 @@ namespace Leopotam.EcsLite {
 #endif
         }
 
-        [MethodImpl (MethodImplOptions.AggressiveInlining)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public string GetName() {
+			return _name;
+		}
+
+		[MethodImpl (MethodImplOptions.AggressiveInlining)]
         public bool IsAlive () {
             return !_destroyed;
         }
