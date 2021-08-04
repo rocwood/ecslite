@@ -32,6 +32,8 @@ namespace Leopotam.EcsLite {
         List<EcsFilter>[] _filtersByIncludedComponents;
         List<EcsFilter>[] _filtersByExcludedComponents;
         bool _destroyed;
+		int _uniqueGen;
+
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
         List<IEcsWorldEventListener> _eventListeners;
 
@@ -134,11 +136,13 @@ namespace Leopotam.EcsLite {
         }
 
         public int NewEntity () {
-            int entity;
+			_uniqueGen++;
+
+			int entity;
             if (_recycledEntitiesCount > 0) {
                 entity = _recycledEntities[--_recycledEntitiesCount];
                 ref var entityData = ref Entities[entity];
-                entityData.Gen = (short) -entityData.Gen;
+				entityData.Gen = _uniqueGen; // (short) -entityData.Gen;
             } else {
                 // new entity.
                 if (_entitiesCount == Entities.Length) {
@@ -158,7 +162,7 @@ namespace Leopotam.EcsLite {
 #endif
                 }
                 entity = _entitiesCount++;
-                Entities[entity].Gen = 1;
+				Entities[entity].Gen = _uniqueGen; // 1;
             }
 #if DEBUG
             _leakedEntities.Add (entity);
@@ -197,7 +201,7 @@ namespace Leopotam.EcsLite {
 #endif
                 return;
             }
-            entityData.Gen = (short) (entityData.Gen == short.MaxValue ? -1 : -(entityData.Gen + 1));
+			entityData.Gen = -entityData.Gen; // (short) (entityData.Gen == short.MaxValue ? -1 : -(entityData.Gen + 1));
             if (_recycledEntitiesCount == _recycledEntities.Length) {
                 Array.Resize (ref _recycledEntities, _recycledEntitiesCount << 1);
             }
@@ -215,7 +219,7 @@ namespace Leopotam.EcsLite {
         }
 
         [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        public short GetEntityGen (int entity) {
+        public int GetEntityGen (int entity) {
             return Entities[entity].Gen;
         }
 
@@ -229,7 +233,7 @@ namespace Leopotam.EcsLite {
             return Entities.Length;
         }
 
-        public EcsPool<T> GetPool<T> () where T : struct {
+        public EcsPool<T> GetPool<T> () where T : struct, IComponent {
             var poolType = typeof (EcsPool<T>);
             if (_poolHashes.TryGetValue (poolType, out var rawPool)) {
                 return (EcsPool<T>) rawPool;
@@ -268,7 +272,7 @@ namespace Leopotam.EcsLite {
         }
 
         [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        public EcsFilter.Mask Filter<T> () where T : struct {
+        public EcsFilter.Mask Filter<T> () where T : struct, IComponent {
             return EcsFilter.Mask.New (this).Inc<T> ();
         }
 
@@ -441,7 +445,7 @@ namespace Leopotam.EcsLite {
         }
 
         internal struct EntityData {
-            public short Gen;
+            public int Gen;
             public short ComponentsCount;
         }
     }

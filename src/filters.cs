@@ -189,7 +189,7 @@ namespace Leopotam.EcsLite {
             }
 
             [MethodImpl (MethodImplOptions.AggressiveInlining)]
-            public Mask Inc<T> () where T : struct {
+            public Mask Inc<T> () where T : struct, IComponent {
                 var poolId = _world.GetPool<T> ().GetId ();
 #if DEBUG
                 if (_built) { throw new Exception ("Cant change built mask."); }
@@ -205,7 +205,7 @@ namespace Leopotam.EcsLite {
             [UnityEngine.Scripting.Preserve]
 #endif
             [MethodImpl (MethodImplOptions.AggressiveInlining)]
-            public Mask Exc<T> () where T : struct {
+            public Mask Exc<T> () where T : struct, IComponent {
                 var poolId = _world.GetPool<T> ().GetId ();
 #if DEBUG
                 if (_built) { throw new Exception ("Cant change built mask."); }
